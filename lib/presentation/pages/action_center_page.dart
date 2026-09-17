@@ -158,28 +158,31 @@ class _ActionCenterPageState extends ConsumerState<ActionCenterPage> {
                       separatorBuilder: (_, __) => const Divider(height: 1),
                       itemBuilder: (context, index) {
                         final item = items[index];
-                        return CheckboxListTile(
-                          contentPadding: EdgeInsets.zero,
-                          activeColor: AppColors.primary,
-                          value: item.isChecked,
-                          title: Text(
-                            item.title,
-                            style: TextStyle(
-                              fontSize: 13.5,
-                              fontWeight: FontWeight.w600,
-                              decoration: item.isChecked ? TextDecoration.lineThrough : null,
-                              color: item.isChecked
-                                  ? Colors.grey
-                                  : (isDark ? AppColors.textPrimaryDark : AppColors.textPrimaryLight),
+                        return Material(
+                          color: Colors.transparent,
+                          child: CheckboxListTile(
+                            contentPadding: EdgeInsets.zero,
+                            activeColor: AppColors.primary,
+                            value: item.isChecked,
+                            title: Text(
+                              item.title,
+                              style: TextStyle(
+                                fontSize: 13.5,
+                                fontWeight: FontWeight.w600,
+                                decoration: item.isChecked ? TextDecoration.lineThrough : null,
+                                color: item.isChecked
+                                    ? Colors.grey
+                                    : (isDark ? AppColors.textPrimaryDark : AppColors.textPrimaryLight),
+                              ),
                             ),
+                            subtitle: Text(
+                              item.category,
+                              style: const TextStyle(fontSize: 11, color: Colors.grey),
+                            ),
+                            onChanged: (_) {
+                              ref.read(checklistNotifierProvider.notifier).toggleItem(item.id);
+                            },
                           ),
-                          subtitle: Text(
-                            item.category,
-                            style: const TextStyle(fontSize: 11, color: Colors.grey),
-                          ),
-                          onChanged: (_) {
-                            ref.read(checklistNotifierProvider.notifier).toggleItem(item.id);
-                          },
                         );
                       },
                     ),

@@ -242,14 +242,8 @@ class GlassCard extends StatelessWidget {
 
     final card = Container(
       margin: margin,
-      padding: padding ?? const EdgeInsets.all(20),
       decoration: BoxDecoration(
-        color: backgroundColor ?? (isDark ? AppColors.darkCard : AppColors.lightCard),
         borderRadius: BorderRadius.circular(16),
-        border: Border.all(
-          color: borderColor ?? (isDark ? AppColors.darkBorder : AppColors.lightBorder),
-          width: 1,
-        ),
         boxShadow: isDark
             ? null
             : [
@@ -260,7 +254,20 @@ class GlassCard extends StatelessWidget {
                 ),
               ],
       ),
-      child: child,
+      child: Material(
+        color: backgroundColor ?? (isDark ? AppColors.darkCard : AppColors.lightCard),
+        shape: RoundedRectangleBorder(
+          borderRadius: BorderRadius.circular(16),
+          side: BorderSide(
+            color: borderColor ?? (isDark ? AppColors.darkBorder : AppColors.lightBorder),
+            width: 1,
+          ),
+        ),
+        child: Padding(
+          padding: padding ?? const EdgeInsets.all(20),
+          child: child,
+        ),
+      ),
     );
 
     if (onTap != null) {
