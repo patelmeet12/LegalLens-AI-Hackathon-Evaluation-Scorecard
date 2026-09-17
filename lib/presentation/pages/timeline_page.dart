@@ -48,7 +48,7 @@ class TimelinePage extends ConsumerWidget {
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              SectionHeader(
+              const SectionHeader(
                 title: 'Important Dates & Milestone Timeline',
                 subtitle: 'Chronological timeline of effective windows, probation, notice requirements, and renewal cycles.',
                 icon: Icons.timeline_rounded,

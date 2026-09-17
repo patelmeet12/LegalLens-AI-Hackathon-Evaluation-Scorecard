@@ -99,7 +99,7 @@ class _ActionCenterPageState extends ConsumerState<ActionCenterPage> {
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              SectionHeader(
+              const SectionHeader(
                 title: 'Action Center & Lawyer Consultation Prep',
                 subtitle: 'Personalized "Before You Sign" interactive checklist and generated questions for a legal professional.',
                 icon: Icons.checklist_rounded,

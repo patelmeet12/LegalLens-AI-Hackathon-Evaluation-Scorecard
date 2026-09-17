@@ -1,8 +1,11 @@
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 import '../../core/theme/app_theme.dart';
 import '../../domain/entities/enums.dart';
+import '../../domain/entities/legal_entities.dart';
+import '../../services/export/export_service.dart';
 import '../providers/app_providers.dart';
 import '../widgets/shared_widgets.dart';
 
@@ -58,10 +61,21 @@ class SnapshotPage extends ConsumerWidget {
                 title: 'Legal Snapshot Overview',
                 subtitle: 'High-level synthesis of covenants, complexity rating, and attention hotspots for ${doc.fileName}.',
                 icon: Icons.dashboard_rounded,
-                trailing: ElevatedButton.icon(
-                  icon: const Icon(Icons.chat_bubble_outline_rounded, size: 16),
-                  label: const Text('Ask AI Q&A'),
-                  onPressed: () => context.go('/qa'),
+                trailing: Wrap(
+                  spacing: 10,
+                  runSpacing: 10,
+                  children: [
+                    OutlinedButton.icon(
+                      icon: const Icon(Icons.alt_route_rounded, size: 16),
+                      label: const Text('Options & Next Steps'),
+                      onPressed: () => context.go('/options'),
+                    ),
+                    ElevatedButton.icon(
+                      icon: const Icon(Icons.download_rounded, size: 16),
+                      label: const Text('Export Report'),
+                      onPressed: () => _showExportDialog(context, doc),
+                    ),
+                  ],
                 ),
               ),
 
@@ -214,26 +228,32 @@ class SnapshotPage extends ConsumerWidget {
                 builder: (context, constraints) {
                   final isWide = constraints.maxWidth > 700;
                   return GridView.count(
-                    crossAxisCount: isWide ? 3 : 1,
+                    crossAxisCount: isWide ? 4 : (MediaQuery.of(context).size.width > 600 ? 2 : 1),
                     crossAxisSpacing: 14,
                     mainAxisSpacing: 14,
                     shrinkWrap: true,
                     physics: const NeverScrollableScrollPhysics(),
-                    childAspectRatio: isWide ? 1.8 : 2.8,
+                    childAspectRatio: isWide ? 1.5 : 2.5,
                     children: [
-                      _ActionCard(
+                      const _ActionCard(
                         title: 'Clause Intelligence',
                         description: 'Examine plain-language explanations & why each clause matters.',
                         icon: Icons.analytics_outlined,
                         route: '/clauses',
                       ),
-                      _ActionCard(
+                      const _ActionCard(
                         title: 'Risk & Attention Map',
                         description: 'Inspect 6-category risk radar with safe advisory tips.',
                         icon: Icons.shield_outlined,
                         route: '/risk-map',
                       ),
-                      _ActionCard(
+                      const _ActionCard(
+                        title: 'Options & Next Steps',
+                        description: 'Explore strategic negotiation paths, draft redlines & actions.',
+                        icon: Icons.alt_route_rounded,
+                        route: '/options',
+                      ),
+                      const _ActionCard(
                         title: 'Before You Sign Checklist',
                         description: 'Track interactive tasks and prep questions for your lawyer.',
                         icon: Icons.checklist_rounded,
@@ -408,3 +428,66 @@ class _ActionCard extends StatelessWidget {
     );
   }
 }
+
+void _showExportDialog(BuildContext context, LegalDocument doc) {
+  showDialog(
+    context: context,
+    builder: (dialogCtx) => AlertDialog(
+      title: const Row(
+        children: [
+          Icon(Icons.download_rounded, color: AppColors.primary),
+          SizedBox(width: 10),
+          Text('Export Intelligence Report'),
+        ],
+      ),
+      content: ConstrainedBox(
+        constraints: const BoxConstraints(maxWidth: 480),
+        child: Column(
+          mainAxisSize: MainAxisSize.min,
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Text(
+              'Export the complete synthesized intelligence for "${doc.fileName}" across all 8 challenge deliverables.',
+              style: const TextStyle(fontSize: 13, color: AppColors.textSecondary),
+            ),
+            const SizedBox(height: 16),
+            ListTile(
+              leading: const Icon(Icons.description_rounded, color: AppColors.primary),
+              title: const Text('Markdown (.md) Report', style: TextStyle(fontWeight: FontWeight.bold, fontSize: 14)),
+              subtitle: const Text('Formatted document with summaries, clauses, obligations, dates, radar, and options.', style: TextStyle(fontSize: 12)),
+              onTap: () {
+                final md = ExportService.generateMarkdownReport(doc);
+                Clipboard.setData(ClipboardData(text: md));
+                Navigator.of(dialogCtx).pop();
+                ScaffoldMessenger.of(context).showSnackBar(
+                  const SnackBar(content: Text('Complete Markdown report copied to clipboard!')),
+                );
+              },
+            ),
+            const Divider(),
+            ListTile(
+              leading: const Icon(Icons.code_rounded, color: AppColors.secondary),
+              title: const Text('Structured JSON Bundle', style: TextStyle(fontWeight: FontWeight.bold, fontSize: 14)),
+              subtitle: const Text('Raw machine-readable JSON data containing all extracted entities and scores.', style: TextStyle(fontSize: 12)),
+              onTap: () {
+                final json = ExportService.generateJsonReport(doc);
+                Clipboard.setData(ClipboardData(text: json));
+                Navigator.of(dialogCtx).pop();
+                ScaffoldMessenger.of(context).showSnackBar(
+                  const SnackBar(content: Text('Complete JSON bundle copied to clipboard!')),
+                );
+              },
+            ),
+          ],
+        ),
+      ),
+      actions: [
+        TextButton(
+          onPressed: () => Navigator.of(dialogCtx).pop(),
+          child: const Text('Close'),
+        ),
+      ],
+    ),
+  );
+}
+

@@ -205,6 +205,7 @@ class DocumentNotifier extends StateNotifier<DocumentAnalysisState> {
         risks: result.risks,
         lawyerQuestions: result.lawyerQuestions,
         checklist: result.checklist,
+        options: result.options,
       );
 
       // Save document to history
@@ -216,7 +217,7 @@ class DocumentNotifier extends StateNotifier<DocumentAnalysisState> {
         progressStage: null,
       );
     } catch (e) {
-      state = DocumentAnalysisState(
+      state = const DocumentAnalysisState(
         currentDocument: null,
         isAnalyzing: false,
         errorMessage: 'Analysis encountered an error. Please verify the document text or try again.',

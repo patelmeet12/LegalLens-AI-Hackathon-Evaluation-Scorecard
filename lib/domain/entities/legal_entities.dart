@@ -430,6 +430,7 @@ class LegalDocument {
   final List<RiskItem> risks;
   final List<LawyerQuestion> lawyerQuestions;
   final List<ChecklistItem> checklist;
+  final List<LegalOption> options;
 
   const LegalDocument({
     required this.id,
@@ -445,6 +446,7 @@ class LegalDocument {
     required this.risks,
     required this.lawyerQuestions,
     required this.checklist,
+    this.options = const [],
   });
 
   Map<String, dynamic> toJson() => {
@@ -461,6 +463,7 @@ class LegalDocument {
         'risks': risks.map((r) => r.toJson()).toList(),
         'lawyerQuestions': lawyerQuestions.map((q) => q.toJson()).toList(),
         'checklist': checklist.map((i) => i.toJson()).toList(),
+        'options': options.map((opt) => opt.toJson()).toList(),
       };
 
   factory LegalDocument.fromJson(Map<String, dynamic> json) => LegalDocument(
@@ -489,5 +492,111 @@ class LegalDocument {
         checklist: (json['checklist'] as List)
             .map((i) => ChecklistItem.fromJson(i as Map<String, dynamic>))
             .toList(),
+        options: json['options'] != null
+            ? (json['options'] as List)
+                .map((opt) => LegalOption.fromJson(opt as Map<String, dynamic>))
+                .toList()
+            : const [],
       );
 }
+
+/// An actionable step associated with an option or negotiation path
+class NextStep {
+  final String id;
+  final String title;
+  final String description;
+  final String priority; // 'Immediate', 'Before Signing', 'Optional'
+  final bool isCompleted;
+
+  const NextStep({
+    required this.id,
+    required this.title,
+    required this.description,
+    this.priority = 'Before Signing',
+    this.isCompleted = false,
+  });
+
+  NextStep copyWith({
+    String? id,
+    String? title,
+    String? description,
+    String? priority,
+    bool? isCompleted,
+  }) {
+    return NextStep(
+      id: id ?? this.id,
+      title: title ?? this.title,
+      description: description ?? this.description,
+      priority: priority ?? this.priority,
+      isCompleted: isCompleted ?? this.isCompleted,
+    );
+  }
+
+  Map<String, dynamic> toJson() => {
+        'id': id,
+        'title': title,
+        'description': description,
+        'priority': priority,
+        'isCompleted': isCompleted,
+      };
+
+  factory NextStep.fromJson(Map<String, dynamic> json) => NextStep(
+        id: json['id'] as String,
+        title: json['title'] as String,
+        description: json['description'] as String,
+        priority: json['priority'] as String? ?? 'Before Signing',
+        isCompleted: json['isCompleted'] as bool? ?? false,
+      );
+}
+
+/// A possible strategic legal option (e.g. Sign As-Is, Redline, Consult Lawyer)
+class LegalOption {
+  final String id;
+  final String title;
+  final String category;
+  final String summary;
+  final List<String> pros;
+  final List<String> cons;
+  final AttentionTier riskProfile;
+  final List<NextStep> actionableSteps;
+  final String suggestedDraftLanguage;
+
+  const LegalOption({
+    required this.id,
+    required this.title,
+    required this.category,
+    required this.summary,
+    required this.pros,
+    required this.cons,
+    required this.riskProfile,
+    required this.actionableSteps,
+    required this.suggestedDraftLanguage,
+  });
+
+  Map<String, dynamic> toJson() => {
+        'id': id,
+        'title': title,
+        'category': category,
+        'summary': summary,
+        'pros': pros,
+        'cons': cons,
+        'riskProfile': riskProfile.index,
+        'actionableSteps': actionableSteps.map((s) => s.toJson()).toList(),
+        'suggestedDraftLanguage': suggestedDraftLanguage,
+      };
+
+  factory LegalOption.fromJson(Map<String, dynamic> json) => LegalOption(
+        id: json['id'] as String,
+        title: json['title'] as String,
+        category: json['category'] as String,
+        summary: json['summary'] as String,
+        pros: List<String>.from(json['pros'] as List? ?? []),
+        cons: List<String>.from(json['cons'] as List? ?? []),
+        riskProfile: AttentionTier.values[json['riskProfile'] as int],
+        actionableSteps: (json['actionableSteps'] as List? ?? [])
+            .map((s) => NextStep.fromJson(s as Map<String, dynamic>))
+            .toList(),
+        suggestedDraftLanguage: json['suggestedDraftLanguage'] as String? ?? '',
+      );
+}
+

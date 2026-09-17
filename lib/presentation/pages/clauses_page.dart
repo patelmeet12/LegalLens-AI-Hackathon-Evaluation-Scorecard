@@ -76,7 +76,7 @@ class _ClausesPageState extends ConsumerState<ClausesPage> {
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              SectionHeader(
+              const SectionHeader(
                 title: 'Clause Intelligence & Plain-Language Explanations',
                 subtitle: 'Translating dense legalese into clear terms, why each clause matters, and recommended review points.',
                 icon: Icons.analytics_outlined,
@@ -190,16 +190,16 @@ class _ClausesPageState extends ConsumerState<ClausesPage> {
 
               // Clauses List
               if (filteredClauses.isEmpty)
-                GlassCard(
-                  padding: const EdgeInsets.all(32),
+                const GlassCard(
+                  padding: EdgeInsets.all(32),
                   child: Center(
                     child: Column(
                       children: [
-                        const Icon(Icons.search_off_rounded, size: 40, color: Colors.grey),
-                        const SizedBox(height: 12),
-                        const Text('No clauses matched your filters.', style: TextStyle(fontWeight: FontWeight.w600)),
-                        const SizedBox(height: 6),
-                        const Text('Try adjusting your search keyword or clearing the attention level filter.'),
+                        Icon(Icons.search_off_rounded, size: 40, color: Colors.grey),
+                        SizedBox(height: 12),
+                        Text('No clauses matched your filters.', style: TextStyle(fontWeight: FontWeight.w600)),
+                        SizedBox(height: 6),
+                        Text('Try adjusting your search keyword or clearing the attention level filter.'),
                       ],
                     ),
                   ),
@@ -212,7 +212,9 @@ class _ClausesPageState extends ConsumerState<ClausesPage> {
                   separatorBuilder: (_, __) => const SizedBox(height: 16),
                   itemBuilder: (context, index) {
                     final clause = filteredClauses[index];
-                    return _ClauseDetailCard(clause: clause, isDark: isDark);
+                    return RepaintBoundary(
+                      child: _ClauseDetailCard(clause: clause, isDark: isDark),
+                    );
                   },
                 ),
 

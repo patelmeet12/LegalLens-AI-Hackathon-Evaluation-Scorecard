@@ -50,7 +50,7 @@ class RiskMapPage extends ConsumerWidget {
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              SectionHeader(
+              const SectionHeader(
                 title: 'Risk & Attention Radar',
                 subtitle: 'Multidimensional evaluation across Financial, Employment, Privacy, Liability, IP, and Restrictions.',
                 icon: Icons.shield_outlined,

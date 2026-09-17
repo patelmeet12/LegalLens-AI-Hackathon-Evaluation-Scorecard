@@ -9,3 +9,16 @@ analyzer:
 linter:
   rules:
     avoid_print: true
+    prefer_const_constructors: true
+    prefer_const_declarations: true
+    prefer_final_locals: true
+    avoid_unnecessary_containers: true
+    sized_box_for_whitespace: true
+    avoid_empty_else: true
+    cancel_subscriptions: true
+    close_sinks: true
+    use_key_in_widget_constructors: true
+    unnecessary_const: true
+    unnecessary_new: true
+    unnecessary_string_interpolations: true
+

@@ -22,6 +22,10 @@ class AppConstants {
 
   static const String notDetectedDate = 'Not detected.';
 
+  // Aliases for sample agreements
+  static const String sampleEmploymentAgreement = sampleEmploymentContract;
+  static const String sampleNdaAgreement = sampleMutualNDA;
+
   // Document Categories
   static const List<String> documentCategories = [
     'Employment Agreement',

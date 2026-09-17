@@ -55,7 +55,7 @@ class _SettingsPageState extends ConsumerState<SettingsPage> {
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              SectionHeader(
+              const SectionHeader(
                 title: 'Settings, AI Engine & Privacy',
                 subtitle: 'Configure local Demo Mode or optional cloud GenAI keys, manage data retention, and review legal notices.',
                 icon: Icons.settings_outlined,

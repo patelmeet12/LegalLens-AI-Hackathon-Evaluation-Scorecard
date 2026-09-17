@@ -32,6 +32,7 @@ class AppShell extends ConsumerWidget {
     NavItem(label: 'Obligation Extractor', icon: Icons.assignment_outlined, route: '/obligations', requiresDocument: true),
     NavItem(label: 'Important Dates', icon: Icons.timeline_rounded, route: '/timeline', requiresDocument: true),
     NavItem(label: 'Risk & Attention Map', icon: Icons.shield_outlined, route: '/risk-map', requiresDocument: true),
+    NavItem(label: 'Options & Next Steps', icon: Icons.alt_route_rounded, route: '/options', requiresDocument: true),
     NavItem(label: 'Document Grounded Q&A', icon: Icons.forum_outlined, route: '/qa', requiresDocument: true),
     NavItem(label: 'Compare Contracts', icon: Icons.compare_arrows_rounded, route: '/comparison'),
     NavItem(label: 'Action Center & Prep', icon: Icons.checklist_rounded, route: '/action-center', requiresDocument: true),
@@ -64,9 +65,9 @@ class AppShell extends ConsumerWidget {
                     child: const Icon(Icons.gavel_rounded, size: 18, color: Colors.white),
                   ),
                   const SizedBox(width: 10),
-                  Text(
+                  const Text(
                     AppConstants.appName,
-                    style: const TextStyle(fontWeight: FontWeight.w700, fontSize: 18),
+                    style: TextStyle(fontWeight: FontWeight.w700, fontSize: 18),
                   ),
                 ],
               ),
@@ -229,9 +230,9 @@ class AppShell extends ConsumerWidget {
               Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  Text(
+                  const Text(
                     AppConstants.appName,
-                    style: const TextStyle(
+                    style: TextStyle(
                       fontWeight: FontWeight.w700,
                       fontSize: 17,
                       letterSpacing: -0.3,
@@ -261,56 +262,63 @@ class AppShell extends ConsumerWidget {
 
               return Padding(
                 padding: const EdgeInsets.symmetric(vertical: 2),
-                child: ListTile(
-                  dense: true,
-                  shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
-                  tileColor: isSelected
-                      ? AppColors.primary.withOpacity(0.14)
-                      : Colors.transparent,
-                  leading: Icon(
-                    item.icon,
-                    size: 19,
-                    color: isSelected
-                        ? AppColors.primaryLight
-                        : (isDisabled
-                            ? (isDark ? AppColors.textTertiaryDark : AppColors.textTertiaryLight)
-                            : (isDark ? AppColors.textSecondaryDark : AppColors.textSecondaryLight)),
-                  ),
-                  title: Text(
-                    item.label,
-                    style: TextStyle(
-                      fontSize: 13,
-                      fontWeight: isSelected ? FontWeight.w600 : FontWeight.w400,
+                child: Semantics(
+                  button: true,
+                  selected: isSelected,
+                  enabled: !isDisabled,
+                  label: '${item.label}${isDisabled ? " (Requires document to be uploaded)" : ""}',
+                  hint: isDisabled ? 'Upload a document first to access this section' : 'Navigate to ${item.label}',
+                  child: ListTile(
+                    dense: true,
+                    shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
+                    tileColor: isSelected
+                        ? AppColors.primary.withValues(alpha: 0.14)
+                        : Colors.transparent,
+                    leading: Icon(
+                      item.icon,
+                      size: 19,
                       color: isSelected
-                          ? (isDark ? Colors.white : AppColors.primaryDark)
+                          ? AppColors.primaryLight
                           : (isDisabled
                               ? (isDark ? AppColors.textTertiaryDark : AppColors.textTertiaryLight)
-                              : (isDark ? AppColors.textPrimaryDark : AppColors.textPrimaryLight)),
+                              : (isDark ? AppColors.textSecondaryDark : AppColors.textSecondaryLight)),
                     ),
-                  ),
-                  trailing: isDisabled
-                      ? Container(
-                          padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 2),
-                          decoration: BoxDecoration(
-                            color: Colors.grey.withOpacity(0.15),
-                            borderRadius: BorderRadius.circular(4),
+                    title: Text(
+                      item.label,
+                      style: TextStyle(
+                        fontSize: 13,
+                        fontWeight: isSelected ? FontWeight.w600 : FontWeight.w400,
+                        color: isSelected
+                            ? (isDark ? Colors.white : AppColors.primaryDark)
+                            : (isDisabled
+                                ? (isDark ? AppColors.textTertiaryDark : AppColors.textTertiaryLight)
+                                : (isDark ? AppColors.textPrimaryDark : AppColors.textPrimaryLight)),
+                      ),
+                    ),
+                    trailing: isDisabled
+                        ? Container(
+                            padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 2),
+                            decoration: BoxDecoration(
+                              color: Colors.grey.withValues(alpha: 0.15),
+                              borderRadius: BorderRadius.circular(4),
+                            ),
+                            child: const Text('Doc req.', style: TextStyle(fontSize: 9)),
+                          )
+                        : null,
+                    onTap: () {
+                      if (isDisabled) {
+                        ScaffoldMessenger.of(context).showSnackBar(
+                          const SnackBar(
+                            content: Text('Please upload or select a document first to unlock this view.'),
+                            duration: Duration(seconds: 2),
                           ),
-                          child: const Text('Doc req.', style: TextStyle(fontSize: 9)),
-                        )
-                      : null,
-                  onTap: () {
-                    if (isDisabled) {
-                      ScaffoldMessenger.of(context).showSnackBar(
-                        const SnackBar(
-                          content: Text('Please upload or select a document first to unlock this view.'),
-                          duration: Duration(seconds: 2),
-                        ),
-                      );
-                      context.go('/upload');
-                    } else {
-                      context.go(item.route);
-                    }
-                  },
+                        );
+                        context.go('/upload');
+                      } else {
+                        context.go(item.route);
+                      }
+                    },
+                  ),
                 ),
               );
             }).toList(),

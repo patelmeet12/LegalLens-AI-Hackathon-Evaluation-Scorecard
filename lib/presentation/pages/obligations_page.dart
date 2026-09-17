@@ -70,7 +70,7 @@ class _ObligationsPageState extends ConsumerState<ObligationsPage> with SingleTi
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              SectionHeader(
+              const SectionHeader(
                 title: 'Obligation Extractor & Responsibility Matrix',
                 subtitle: 'Deconstruct contract commitments into distinct, actionable duties for each contracting party.',
                 icon: Icons.assignment_turned_in_outlined,

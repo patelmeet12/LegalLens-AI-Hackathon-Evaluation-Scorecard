@@ -1,0 +1,51 @@
+name: LegalLens AI CI/CD Pipeline
+
+on:
+  push:
+    branches: [ main ]
+  pull_request:
+    branches: [ main ]
+  workflow_dispatch:
+
+jobs:
+  validate_and_test:
+    name: Lint, Test & Web Build
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout Source Code
+        uses: actions/checkout@v4
+
+      - name: Setup Java
+        uses: actions/setup-java@v4
+        with:
+          distribution: 'zulu'
+          java-version: '17'
+
+      - name: Setup Flutter Environment
+        uses: subosito/flutter-action@v2
+        with:
+          channel: 'stable'
+          cache: true
+
+      - name: Verify Flutter Version
+        run: flutter --version
+
+      - name: Install Project Dependencies
+        run: flutter pub get
+
+      - name: Static Code Analysis (0 Errors, 0 Warnings, 0 Lints)
+        run: flutter analyze --fatal-infos
+
+      - name: Run Automated Test Suite with Coverage
+        run: flutter test --coverage
+
+      - name: Verify Web Production Compilation
+        run: flutter build web --release --no-tree-shake-icons
+
+      - name: Upload Test Coverage Artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: lcov-coverage-report
+          path: coverage/lcov.info
+          if-no-files-found: ignore

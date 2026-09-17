@@ -11,6 +11,7 @@ import '../presentation/pages/qa_page.dart';
 import '../presentation/pages/comparison_page.dart';
 import '../presentation/pages/action_center_page.dart';
 import '../presentation/pages/history_page.dart';
+import '../presentation/pages/options_page.dart';
 import '../presentation/pages/settings_page.dart';
 import '../presentation/widgets/app_shell.dart';
 
@@ -54,6 +55,10 @@ final appRouter = GoRouter(
         GoRoute(
           path: '/risk-map',
           pageBuilder: (context, state) => const NoTransitionPage(child: RiskMapPage()),
+        ),
+        GoRoute(
+          path: '/options',
+          pageBuilder: (context, state) => const NoTransitionPage(child: OptionsPage()),
         ),
         GoRoute(
           path: '/qa',

@@ -1,3 +1,5 @@
+import 'dart:convert';
+import 'package:crypto/crypto.dart';
 import '../../domain/entities/legal_entities.dart';
 import 'ai_provider.dart';
 import 'demo_ai_provider.dart';
@@ -8,6 +10,9 @@ class AIService {
   GeminiAIProvider? _geminiProvider;
   bool _useDemoMode = true;
 
+  // In-memory SHA-256 analysis memoization cache for sub-millisecond O(1) retrieval
+  final Map<String, LegalAnalysisResult> _analysisCache = {};
+
   AIService({bool useDemoMode = true, String? apiKey}) {
     _useDemoMode = useDemoMode;
     if (apiKey != null && apiKey.isNotEmpty) {
@@ -17,6 +22,7 @@ class AIService {
 
   bool get isDemoMode => _useDemoMode;
   bool get hasRealConfigured => _geminiProvider?.isConfigured ?? false;
+  int get cachedAnalysisCount => _analysisCache.length;
 
   void configure({required bool useDemoMode, String? apiKey}) {
     _useDemoMode = useDemoMode;
@@ -25,6 +31,21 @@ class AIService {
     } else {
       _geminiProvider = null;
     }
+    // Clear cache when AI configuration changes
+    clearCache();
+  }
+
+  void clearCache() {
+    _analysisCache.clear();
+  }
+
+  String _computeCacheKey(String documentType, String text) {
+    final payload = '$documentType:${text.trim()}';
+    return sha256.convert(utf8.encode(payload)).toString();
+  }
+
+  bool isCached(String documentType, String text) {
+    return _analysisCache.containsKey(_computeCacheKey(documentType, text));
   }
 
   AIProvider get _activeProvider {
@@ -41,6 +62,11 @@ class AIService {
     required String documentType,
     required String fileName,
   }) async {
+    final cacheKey = _computeCacheKey(documentType, text);
+    if (_analysisCache.containsKey(cacheKey)) {
+      return _analysisCache[cacheKey]!;
+    }
+
     final result = await _activeProvider.analyzeDocument(
       text: text,
       documentType: documentType,
@@ -48,7 +74,9 @@ class AIService {
     );
 
     // Safeguard validation: ensure no forbidden defamatory or legal conclusion words exist
-    return _sanitizeAnalysisResult(result);
+    final sanitized = _sanitizeAnalysisResult(result);
+    _analysisCache[cacheKey] = sanitized;
+    return sanitized;
   }
 
   Future<QAMessage> answerQuestion({
@@ -82,7 +110,7 @@ class AIService {
   LegalAnalysisResult _sanitizeAnalysisResult(LegalAnalysisResult result) {
     // Ensure all clauses use safe language
     final safeClauses = result.clauses.map((clause) {
-      String potential = clause.potentialConcern
+      final String potential = clause.potentialConcern
           .replaceAll(RegExp(r'\billegal\b', caseSensitive: false), 'potentially non-standard')
           .replaceAll(RegExp(r'\bunlawful\b', caseSensitive: false), 'subject to jurisdictional limitations')
           .replaceAll(RegExp(r'\byou will lose\b', caseSensitive: false), 'may present dispute risks');
@@ -109,6 +137,7 @@ class AIService {
       risks: result.risks,
       lawyerQuestions: result.lawyerQuestions,
       checklist: result.checklist,
+      options: result.options,
     );
   }
 }

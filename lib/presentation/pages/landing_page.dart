@@ -144,11 +144,11 @@ class LandingPage extends ConsumerWidget {
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          Row(
+          const Row(
             children: [
-              const Icon(Icons.flash_on_rounded, color: AppColors.priorityReview, size: 20),
-              const SizedBox(width: 8),
-              const Expanded(
+              Icon(Icons.flash_on_rounded, color: AppColors.priorityReview, size: 20),
+              SizedBox(width: 8),
+              Expanded(
                 child: Text(
                   'Quick Evaluation Presets (Instant 1-Click Analysis)',
                   style: TextStyle(fontSize: 16, fontWeight: FontWeight.w700),

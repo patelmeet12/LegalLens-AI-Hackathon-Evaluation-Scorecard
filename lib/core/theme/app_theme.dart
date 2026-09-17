@@ -41,6 +41,15 @@ class AppColors {
   static const Color textPrimaryLight = Color(0xFF0F172A);
   static const Color textSecondaryLight = Color(0xFF475569);
   static const Color textTertiaryLight = Color(0xFF94A3B8);
+
+  // Semantic & General Aliases
+  static const Color success = priorityInfo;
+  static const Color warning = priorityReview;
+  static const Color error = priorityAttention;
+  static const Color textSecondary = textSecondaryDark;
+  static const Color textTertiary = textTertiaryDark;
+  static const Color darkBackground = darkBg;
+  static const Color lightBackground = lightBg;
 }
 
 class AppTheme {

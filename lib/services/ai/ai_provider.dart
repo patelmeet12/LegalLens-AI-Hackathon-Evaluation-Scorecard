@@ -8,6 +8,7 @@ class LegalAnalysisResult {
   final List<RiskItem> risks;
   final List<LawyerQuestion> lawyerQuestions;
   final List<ChecklistItem> checklist;
+  final List<LegalOption> options;
 
   const LegalAnalysisResult({
     required this.snapshot,
@@ -17,6 +18,7 @@ class LegalAnalysisResult {
     required this.risks,
     required this.lawyerQuestions,
     required this.checklist,
+    this.options = const [],
   });
 }
 
