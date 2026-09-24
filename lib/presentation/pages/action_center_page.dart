@@ -155,7 +155,7 @@ class _ActionCenterPageState extends ConsumerState<ActionCenterPage> {
                       shrinkWrap: true,
                       physics: const NeverScrollableScrollPhysics(),
                       itemCount: items.length,
-                      separatorBuilder: (_, __) => const Divider(height: 1),
+                      separatorBuilder: (_, index) => const Divider(height: 1),
                       itemBuilder: (context, index) {
                         final item = items[index];
                         return Material(
@@ -255,7 +255,7 @@ class _ActionCenterPageState extends ConsumerState<ActionCenterPage> {
                       shrinkWrap: true,
                       physics: const NeverScrollableScrollPhysics(),
                       itemCount: questions.length,
-                      separatorBuilder: (_, __) => const SizedBox(height: 14),
+                      separatorBuilder: (_, index) => const SizedBox(height: 14),
                       itemBuilder: (context, index) {
                         final q = questions[index];
                         return Container(
@@ -275,7 +275,7 @@ class _ActionCenterPageState extends ConsumerState<ActionCenterPage> {
                                   Container(
                                     padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 3),
                                     decoration: BoxDecoration(
-                                      color: AppColors.primary.withOpacity(0.12),
+                                      color: AppColors.primary.withValues(alpha: 0.12),
                                       borderRadius: BorderRadius.circular(6),
                                     ),
                                     child: Text(

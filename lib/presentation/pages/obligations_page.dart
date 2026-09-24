@@ -87,7 +87,7 @@ class _ObligationsPageState extends ConsumerState<ObligationsPage> with SingleTi
                   controller: _tabController,
                   indicatorSize: TabBarIndicatorSize.tab,
                   indicator: BoxDecoration(
-                    color: AppColors.primary.withOpacity(0.18),
+                    color: AppColors.primary.withValues(alpha: 0.18),
                     borderRadius: BorderRadius.circular(10),
                     border: Border.all(color: AppColors.primary, width: 1.5),
                   ),
@@ -180,7 +180,7 @@ class _ObligationsPageState extends ConsumerState<ObligationsPage> with SingleTi
 
     return ListView.separated(
       itemCount: obligations.length,
-      separatorBuilder: (_, __) => const SizedBox(height: 12),
+      separatorBuilder: (_, index) => const SizedBox(height: 12),
       itemBuilder: (context, index) {
         final ob = obligations[index];
         final isDone = _completedMap[ob.id] ?? false;

@@ -58,9 +58,9 @@ class TimelinePage extends ConsumerWidget {
               Container(
                 padding: const EdgeInsets.all(14),
                 decoration: BoxDecoration(
-                  color: AppColors.primaryDark.withOpacity(0.08),
+                  color: AppColors.primaryDark.withValues(alpha: 0.08),
                   borderRadius: BorderRadius.circular(12),
-                  border: Border.all(color: AppColors.primaryLight.withOpacity(0.2)),
+                  border: Border.all(color: AppColors.primaryLight.withValues(alpha: 0.2)),
                 ),
                 child: const Row(
                   children: [
@@ -131,7 +131,7 @@ class _TimelineNode extends StatelessWidget {
                 height: 20,
                 decoration: BoxDecoration(
                   shape: BoxShape.circle,
-                  color: isDetected ? AppColors.primary : Colors.grey.withOpacity(0.4),
+                  color: isDetected ? AppColors.primary : Colors.grey.withValues(alpha: 0.4),
                   border: Border.all(
                     color: isDetected ? AppColors.primaryLight : Colors.grey,
                     width: 2,
@@ -157,7 +157,7 @@ class _TimelineNode extends StatelessWidget {
             padding: const EdgeInsets.only(bottom: 20),
             child: GlassCard(
               padding: const EdgeInsets.all(16),
-              borderColor: !isDetected ? Colors.grey.withOpacity(0.3) : null,
+              borderColor: !isDetected ? Colors.grey.withValues(alpha: 0.3) : null,
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
@@ -167,7 +167,7 @@ class _TimelineNode extends StatelessWidget {
                       Container(
                         padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 3),
                         decoration: BoxDecoration(
-                          color: (isDetected ? AppColors.primary : Colors.grey).withOpacity(0.12),
+                          color: (isDetected ? AppColors.primary : Colors.grey).withValues(alpha: 0.12),
                           borderRadius: BorderRadius.circular(6),
                         ),
                         child: Text(

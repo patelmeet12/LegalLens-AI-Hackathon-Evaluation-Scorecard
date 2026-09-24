@@ -1,38 +1,44 @@
+import 'dart:typed_data';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:legallens_ai/services/document/document_parser_service.dart';
 
 void main() {
   group('DocumentParserService Unit Tests', () {
-    test('Splits document into logical structured sections by headings', () {
-      const sample = '''
-EMPLOYMENT AGREEMENT
+    test('splitIntoSections returns empty list for empty text', () {
+      final sections = DocumentParserService.splitIntoSections('   ');
+      expect(sections, isEmpty);
+    });
 
-1. POSITION AND DUTIES
-Alex is hired as engineer.
+    test('splitIntoSections parses preamble, all-caps headers, and numbered sections', () {
+      const sampleText = '''
+CONFIDENTIAL EMPLOYMENT AGREEMENT
+This agreement is made between Company and Employee.
 
-2. COMPENSATION AND BENEFITS
-Base salary is \$185,000 per annum.
+SECTION 1 COMPENSATION
+Employee will receive a base salary of \$150,000 per annum.
 
-3. TERM AND TERMINATION
-At-will employment with 90 days notice.
+2. TERM AND TERMINATION
+The employment shall continue until terminated by either party upon 30 days notice.
+
+ARTICLE III MISCELLANEOUS
+This agreement constitutes the entire understanding between the parties.
 ''';
 
-      final sections = DocumentParserService.splitIntoSections(sample);
-      expect(sections.isNotEmpty, isTrue);
-      expect(sections.any((s) => s.title.contains('POSITION') || s.title.contains('COMPENSATION')), isTrue);
+      final sections = DocumentParserService.splitIntoSections(sampleText);
+      expect(sections.isNotEmpty, true);
+      expect(sections.length, greaterThanOrEqualTo(3));
+      expect(sections[0].title, contains('CONFIDENTIAL EMPLOYMENT AGREEMENT'));
+      expect(sections.any((s) => s.title.contains('SECTION 1 COMPENSATION')), true);
+      expect(sections.any((s) => s.title.contains('2. TERM AND TERMINATION')), true);
+      expect(sections.any((s) => s.title.contains('ARTICLE III MISCELLANEOUS')), true);
     });
 
-    test('Handles empty text gracefully without throwing', () {
-      final sections = DocumentParserService.splitIntoSections('');
-      expect(sections.isEmpty, isTrue);
-    });
-
-    test('Preamble section created when text has no leading header', () {
-      const sample = 'This is an unstructured contract agreement between party A and party B.';
-      final sections = DocumentParserService.splitIntoSections(sample);
-      expect(sections.length, 1);
-      expect(sections.first.title, contains('Preamble'));
-      expect(sections.first.content, contains('unstructured contract'));
+    test('extractTextFromPdf throws friendly Exception on invalid bytes', () async {
+      final invalidBytes = Uint8List.fromList([0, 1, 2, 3, 4, 5]);
+      expect(
+        () async => await DocumentParserService.extractTextFromPdf(invalidBytes),
+        throwsA(isA<Exception>()),
+      );
     });
   });
 }

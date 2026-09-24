@@ -3,6 +3,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 import '../../core/constants/app_constants.dart';
 import '../../core/theme/app_theme.dart';
+import '../../domain/entities/legal_entities.dart';
 import '../providers/app_providers.dart';
 
 class NavItem {
@@ -117,7 +118,7 @@ class AppShell extends ConsumerWidget {
     BuildContext context,
     WidgetRef ref,
     String currentRoute,
-    dynamic currentDoc,
+    LegalDocument? currentDoc,
     bool isDark,
     bool isWide,
   ) {
@@ -160,9 +161,9 @@ class AppShell extends ConsumerWidget {
             Container(
               padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 5),
               decoration: BoxDecoration(
-                color: AppColors.primary.withOpacity(0.12),
+                color: AppColors.primary.withValues(alpha: 0.12),
                 borderRadius: BorderRadius.circular(20),
-                border: Border.all(color: AppColors.primary.withOpacity(0.3)),
+                border: Border.all(color: AppColors.primary.withValues(alpha: 0.3)),
               ),
               child: Row(
                 mainAxisSize: MainAxisSize.min,

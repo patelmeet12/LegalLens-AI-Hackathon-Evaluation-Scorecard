@@ -209,7 +209,7 @@ class _ClausesPageState extends ConsumerState<ClausesPage> {
                   shrinkWrap: true,
                   physics: const NeverScrollableScrollPhysics(),
                   itemCount: filteredClauses.length,
-                  separatorBuilder: (_, __) => const SizedBox(height: 16),
+                  separatorBuilder: (_, index) => const SizedBox(height: 16),
                   itemBuilder: (context, index) {
                     final clause = filteredClauses[index];
                     return RepaintBoundary(
@@ -257,7 +257,7 @@ class _ClauseDetailCardState extends State<_ClauseDetailCard> {
               Container(
                 padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
                 decoration: BoxDecoration(
-                  color: AppColors.primary.withOpacity(0.12),
+                  color: AppColors.primary.withValues(alpha: 0.12),
                   borderRadius: BorderRadius.circular(6),
                 ),
                 child: Text(
@@ -451,7 +451,7 @@ class _ClauseDetailCardState extends State<_ClauseDetailCard> {
               width: double.infinity,
               padding: const EdgeInsets.all(12),
               decoration: BoxDecoration(
-                color: isDark ? Colors.black.withOpacity(0.3) : Colors.grey.withOpacity(0.08),
+                color: isDark ? Colors.black.withValues(alpha: 0.3) : Colors.grey.withValues(alpha: 0.08),
                 borderRadius: BorderRadius.circular(8),
                 border: Border.all(
                   color: isDark ? AppColors.darkBorderSubtle : AppColors.lightBorderSubtle,

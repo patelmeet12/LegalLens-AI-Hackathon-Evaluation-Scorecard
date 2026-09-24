@@ -172,18 +172,9 @@ class DocumentNotifier extends StateNotifier<DocumentAnalysisState> {
     try {
       state = state.copyWith(
         isAnalyzing: true,
-        progressStage: 'Extracting text and structure...',
+        progressStage: 'Analyzing document structure, clauses, and risk indicators...',
         errorMessage: null,
       );
-
-      await Future.delayed(const Duration(milliseconds: 250));
-      state = state.copyWith(progressStage: 'Segmenting clauses and legal covenants...');
-
-      await Future.delayed(const Duration(milliseconds: 250));
-      state = state.copyWith(progressStage: 'Identifying obligations and timelines...');
-
-      await Future.delayed(const Duration(milliseconds: 250));
-      state = state.copyWith(progressStage: 'Evaluating risk indicators and attention points...');
 
       final result = await _ai.analyzeDocument(
         text: rawText,

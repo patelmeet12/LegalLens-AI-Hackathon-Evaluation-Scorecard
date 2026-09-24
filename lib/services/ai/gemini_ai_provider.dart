@@ -119,7 +119,7 @@ Respond with strict JSON matching this structure:
 ''';
 
       final url = 'https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash:generateContent?key=$apiKey';
-      final response = await _dio.post(
+      final response = await _dio.post<Map<String, dynamic>>(
         url,
         data: {
           'contents': [
@@ -136,8 +136,17 @@ Respond with strict JSON matching this structure:
         },
       );
 
-      final candidate = response.data['candidates'][0]['content']['parts'][0]['text'];
-      final Map<String, dynamic> jsonMap = jsonDecode(candidate);
+      final dataMap = response.data ?? {};
+      final candidates = dataMap['candidates'] as List<dynamic>? ?? [];
+      if (candidates.isEmpty) {
+        throw Exception('No candidates returned from Gemini API');
+      }
+      final firstCandidate = candidates.first as Map<String, dynamic>;
+      final content = firstCandidate['content'] as Map<String, dynamic>? ?? {};
+      final parts = content['parts'] as List<dynamic>? ?? [];
+      final firstPart = parts.isNotEmpty ? parts.first as Map<String, dynamic> : <String, dynamic>{};
+      final candidateText = firstPart['text'] as String? ?? '{}';
+      final jsonMap = jsonDecode(candidateText) as Map<String, dynamic>;
 
       return _parseJsonToResult(jsonMap, documentType);
     } catch (_) {
@@ -149,6 +158,9 @@ Respond with strict JSON matching this structure:
       );
     }
   }
+
+  LegalAnalysisResult parseJsonToResult(Map<String, dynamic> json, String docType) =>
+      _parseJsonToResult(json, docType);
 
   LegalAnalysisResult _parseJsonToResult(Map<String, dynamic> json, String docType) {
     final compStr = (json['complexity'] as String? ?? 'moderate').toLowerCase();
@@ -162,63 +174,76 @@ Respond with strict JSON matching this structure:
         : (attStr.contains('review') ? AttentionTier.review : AttentionTier.informational);
 
     final clauses = <LegalClause>[];
-    if (json['clauses'] != null) {
-      for (final c in json['clauses']) {
-        final tier = (c['importance'] as String? ?? '').toLowerCase().contains('high')
+    final rawClauses = json['clauses'] as List<dynamic>?;
+    if (rawClauses != null) {
+      for (final raw in rawClauses) {
+        if (raw is! Map<String, dynamic>) continue;
+        final c = raw;
+        final importanceStr = (c['importance'] as String? ?? '').toLowerCase();
+        final tier = importanceStr.contains('high')
             ? AttentionTier.highAttention
-            : ((c['importance'] as String? ?? '').toLowerCase().contains('review')
+            : (importanceStr.contains('review')
                 ? AttentionTier.review
                 : AttentionTier.informational);
 
         clauses.add(LegalClause(
-          id: c['id'] ?? 'c_${clauses.length}',
-          title: c['title'] ?? 'Clause',
-          category: c['category'] ?? 'General',
+          id: (c['id'] as String?) ?? 'c_${clauses.length}',
+          title: (c['title'] as String?) ?? 'Clause',
+          category: (c['category'] as String?) ?? 'General',
           importance: tier,
-          originalText: c['originalText'] ?? '',
-          plainLanguageExplanation: c['plainLanguageExplanation'] ?? '',
-          whyItMatters: c['whyItMatters'] ?? '',
-          potentialConcern: c['potentialConcern'] ?? '',
-          recommendedReview: c['recommendedReview'] ?? '',
+          originalText: (c['originalText'] as String?) ?? '',
+          plainLanguageExplanation: (c['plainLanguageExplanation'] as String?) ?? '',
+          whyItMatters: (c['whyItMatters'] as String?) ?? '',
+          potentialConcern: (c['potentialConcern'] as String?) ?? '',
+          recommendedReview: (c['recommendedReview'] as String?) ?? '',
         ));
       }
     }
 
     final obligations = <Obligation>[];
-    if (json['obligations'] != null) {
-      for (final o in json['obligations']) {
+    final rawObligations = json['obligations'] as List<dynamic>?;
+    if (rawObligations != null) {
+      for (final raw in rawObligations) {
+        if (raw is! Map<String, dynamic>) continue;
+        final o = raw;
         final pStr = (o['party'] as String? ?? '').toLowerCase();
         final party = pStr.contains('other')
             ? ObligationParty.otherParty
             : (pStr.contains('shared') ? ObligationParty.shared : ObligationParty.your);
 
         obligations.add(Obligation(
-          id: o['id'] ?? 'o_${obligations.length}',
+          id: (o['id'] as String?) ?? 'o_${obligations.length}',
           party: party,
-          description: o['description'] ?? '',
-          sourceClause: o['sourceClause'] ?? '',
+          description: (o['description'] as String?) ?? '',
+          sourceClause: (o['sourceClause'] as String?) ?? '',
         ));
       }
     }
 
     final dates = <ImportantDate>[];
-    if (json['dates'] != null) {
-      for (final d in json['dates']) {
-        final dateStr = d['dateString'] ?? AppConstants.notDetectedDate;
+    final rawDates = json['dates'] as List<dynamic>?;
+    if (rawDates != null) {
+      for (final raw in rawDates) {
+        if (raw is! Map<String, dynamic>) continue;
+        final d = raw;
+        final dateStr = (d['dateString'] as String?) ?? AppConstants.notDetectedDate;
         dates.add(ImportantDate(
-          id: d['id'] ?? 'd_${dates.length}',
-          title: d['title'] ?? 'Date',
+          id: (d['id'] as String?) ?? 'd_${dates.length}',
+          title: (d['title'] as String?) ?? 'Date',
           dateString: dateStr,
-          type: d['type'] ?? 'Period',
-          sourceSnippet: d['sourceSnippet'] ?? '',
+          type: (d['type'] as String?) ?? 'Period',
+          sourceSnippet: (d['sourceSnippet'] as String?) ?? '',
           isDetected: !dateStr.contains('Not detected'),
         ));
       }
     }
 
     final risks = <RiskItem>[];
-    if (json['risks'] != null) {
-      for (final r in json['risks']) {
+    final rawRisks = json['risks'] as List<dynamic>?;
+    if (rawRisks != null) {
+      for (final raw in rawRisks) {
+        if (raw is! Map<String, dynamic>) continue;
+        final r = raw;
         final catStr = (r['category'] as String? ?? '').toLowerCase();
         RiskCategory cat = RiskCategory.financial;
         if (catStr.contains('employ')) cat = RiskCategory.employment;
@@ -227,53 +252,63 @@ Respond with strict JSON matching this structure:
         if (catStr.contains('intel') || catStr.contains('ip')) cat = RiskCategory.intellectualProperty;
         if (catStr.contains('rest')) cat = RiskCategory.restrictions;
 
-        final tier = (r['attentionLevel'] as String? ?? '').toLowerCase().contains('high')
+        final levelStr = (r['attentionLevel'] as String? ?? '').toLowerCase();
+        final tier = levelStr.contains('high')
             ? AttentionTier.highAttention
-            : ((r['attentionLevel'] as String? ?? '').toLowerCase().contains('review')
+            : (levelStr.contains('review')
                 ? AttentionTier.review
                 : AttentionTier.informational);
 
         risks.add(RiskItem(
-          id: r['id'] ?? 'r_${risks.length}',
+          id: (r['id'] as String?) ?? 'r_${risks.length}',
           category: cat,
           attentionLevel: tier,
-          relevantClause: r['relevantClause'] ?? '',
-          explanation: r['explanation'] ?? '',
-          recommendedAction: r['recommendedAction'] ?? '',
+          relevantClause: (r['relevantClause'] as String?) ?? '',
+          explanation: (r['explanation'] as String?) ?? '',
+          recommendedAction: (r['recommendedAction'] as String?) ?? '',
         ));
       }
     }
 
     final questions = <LawyerQuestion>[];
-    if (json['lawyerQuestions'] != null) {
-      for (final q in json['lawyerQuestions']) {
+    final rawQuestions = json['lawyerQuestions'] as List<dynamic>?;
+    if (rawQuestions != null) {
+      for (final raw in rawQuestions) {
+        if (raw is! Map<String, dynamic>) continue;
+        final q = raw;
         questions.add(LawyerQuestion(
-          id: q['id'] ?? 'q_${questions.length}',
-          question: q['question'] ?? '',
-          category: q['category'] ?? '',
-          contextReason: q['contextReason'] ?? '',
-          sourceClause: q['sourceClause'] ?? '',
+          id: (q['id'] as String?) ?? 'q_${questions.length}',
+          question: (q['question'] as String?) ?? '',
+          category: (q['category'] as String?) ?? '',
+          contextReason: (q['contextReason'] as String?) ?? '',
+          sourceClause: (q['sourceClause'] as String?) ?? '',
         ));
       }
     }
 
     final checklist = <ChecklistItem>[];
-    if (json['checklist'] != null) {
-      for (final k in json['checklist']) {
+    final rawChecklist = json['checklist'] as List<dynamic>?;
+    if (rawChecklist != null) {
+      for (final raw in rawChecklist) {
+        if (raw is! Map<String, dynamic>) continue;
+        final k = raw;
         checklist.add(ChecklistItem(
-          id: k['id'] ?? 'k_${checklist.length}',
-          title: k['title'] ?? '',
-          category: k['category'] ?? '',
+          id: (k['id'] as String?) ?? 'k_${checklist.length}',
+          title: (k['title'] as String?) ?? '',
+          category: (k['category'] as String?) ?? '',
         ));
       }
     }
+
+    final rawKeyAreas = json['keyAreas'] as List<dynamic>? ?? [];
+    final keyAreas = rawKeyAreas.map((e) => e.toString()).toList();
 
     final snapshot = LegalSnapshot(
       documentType: docType,
       complexity: complexity,
       attentionLevel: attention,
-      executiveSummary: json['summary'] ?? '',
-      keyAreas: List<String>.from(json['keyAreas'] ?? []),
+      executiveSummary: (json['summary'] as String?) ?? '',
+      keyAreas: keyAreas,
       totalClauses: clauses.length,
       highAttentionCount: clauses.where((c) => c.importance == AttentionTier.highAttention).length,
       reviewCount: clauses.where((c) => c.importance == AttentionTier.review).length,
@@ -327,7 +362,7 @@ Respond with JSON:
 ''';
 
       final url = 'https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash:generateContent?key=$apiKey';
-      final response = await _dio.post(
+      final response = await _dio.post<Map<String, dynamic>>(
         url,
         data: {
           'contents': [
@@ -344,16 +379,29 @@ Respond with JSON:
         },
       );
 
-      final candidate = response.data['candidates'][0]['content']['parts'][0]['text'];
-      final Map<String, dynamic> res = jsonDecode(candidate);
-      final isRefusal = res['isRefusal'] as bool? ?? false || (res['answer'] as String? ?? '').contains('couldn\'t find');
+      final dataMap = response.data ?? <String, dynamic>{};
+      final candidates = dataMap['candidates'] as List<dynamic>? ?? [];
+      if (candidates.isEmpty) {
+        throw Exception('No candidates returned');
+      }
+      final firstCandidate = candidates.first as Map<String, dynamic>;
+      final content = firstCandidate['content'] as Map<String, dynamic>? ?? {};
+      final parts = content['parts'] as List<dynamic>? ?? [];
+      final firstPart = parts.isNotEmpty ? parts.first as Map<String, dynamic> : <String, dynamic>{};
+      final candidate = firstPart['text'] as String? ?? '{}';
+      final Map<String, dynamic> res = jsonDecode(candidate) as Map<String, dynamic>;
+      final answerStr = res['answer'] as String? ?? '';
+      final isRefusal = (res['isRefusal'] as bool? ?? false) || answerStr.contains('couldn\'t find');
+
+      final rawCitations = res['citations'] as List<dynamic>? ?? [];
+      final citations = rawCitations.map((e) => e.toString()).toList();
 
       return QAMessage(
         id: 'msg_${DateTime.now().millisecondsSinceEpoch}',
         isUser: false,
-        text: res['answer'] ?? AppConstants.noHallucinationRefusal,
+        text: answerStr.isNotEmpty ? answerStr : AppConstants.noHallucinationRefusal,
         timestamp: DateTime.now(),
-        citations: List<String>.from(res['citations'] ?? []),
+        citations: citations,
         confidence: ConfidenceLevel.high,
         isRefusal: isRefusal,
       );

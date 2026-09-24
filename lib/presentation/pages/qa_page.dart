@@ -110,9 +110,9 @@ class _QAPageState extends ConsumerState<QAPage> {
               Container(
                 padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 8),
                 decoration: BoxDecoration(
-                  color: AppColors.primaryDark.withOpacity(0.08),
+                  color: AppColors.primaryDark.withValues(alpha: 0.08),
                   borderRadius: BorderRadius.circular(10),
-                  border: Border.all(color: AppColors.primaryLight.withOpacity(0.2)),
+                  border: Border.all(color: AppColors.primaryLight.withValues(alpha: 0.2)),
                 ),
                 child: const Row(
                   children: [
@@ -161,7 +161,7 @@ class _QAPageState extends ConsumerState<QAPage> {
                       child: ListView.separated(
                         controller: _scrollController,
                         itemCount: qaState.messages.length,
-                        separatorBuilder: (_, __) => const SizedBox(height: 14),
+                        separatorBuilder: (_, index) => const SizedBox(height: 14),
                         itemBuilder: (context, index) {
                           final msg = qaState.messages[index];
                           return _MessageBubble(message: msg, isDark: isDark);
@@ -256,7 +256,7 @@ class _MessageBubble extends StatelessWidget {
                 ? null
                 : Border.all(
                     color: message.isRefusal
-                        ? AppColors.priorityAttention.withOpacity(0.4)
+                        ? AppColors.priorityAttention.withValues(alpha: 0.4)
                         : (isDark ? AppColors.darkBorder : AppColors.lightBorder),
                   ),
           ),
@@ -308,7 +308,7 @@ class _MessageBubble extends StatelessWidget {
                       decoration: BoxDecoration(
                         color: isDark ? AppColors.darkBg : AppColors.lightBg,
                         borderRadius: BorderRadius.circular(6),
-                        border: Border.all(color: Colors.grey.withOpacity(0.3)),
+                        border: Border.all(color: Colors.grey.withValues(alpha: 0.3)),
                       ),
                       child: Row(
                         mainAxisSize: MainAxisSize.min,

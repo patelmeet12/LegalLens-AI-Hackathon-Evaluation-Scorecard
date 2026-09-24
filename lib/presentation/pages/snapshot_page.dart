@@ -152,9 +152,9 @@ class SnapshotPage extends ConsumerWidget {
                         return Container(
                           padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
                           decoration: BoxDecoration(
-                            color: AppColors.primary.withOpacity(0.12),
+                            color: AppColors.primary.withValues(alpha: 0.12),
                             borderRadius: BorderRadius.circular(20),
-                            border: Border.all(color: AppColors.primaryLight.withOpacity(0.2)),
+                            border: Border.all(color: AppColors.primaryLight.withValues(alpha: 0.2)),
                           ),
                           child: Text(
                             area,
@@ -280,19 +280,19 @@ class SnapshotPage extends ConsumerWidget {
 
     switch (complexity) {
       case DocumentComplexity.simple:
-        bg = AppColors.priorityInfo.withOpacity(0.15);
+        bg = AppColors.priorityInfo.withValues(alpha: 0.15);
         fg = AppColors.priorityInfo;
         label = 'Complexity: Simple';
         icon = Icons.looks_one_outlined;
         break;
       case DocumentComplexity.moderate:
-        bg = AppColors.priorityReview.withOpacity(0.15);
+        bg = AppColors.priorityReview.withValues(alpha: 0.15);
         fg = AppColors.priorityReview;
         label = 'Complexity: Moderate';
         icon = Icons.looks_two_outlined;
         break;
       case DocumentComplexity.complex:
-        bg = AppColors.priorityAttention.withOpacity(0.15);
+        bg = AppColors.priorityAttention.withValues(alpha: 0.15);
         fg = AppColors.priorityAttention;
         label = 'Complexity: Complex';
         icon = Icons.looks_3_outlined;
@@ -304,7 +304,7 @@ class SnapshotPage extends ConsumerWidget {
       decoration: BoxDecoration(
         color: bg,
         borderRadius: BorderRadius.circular(20),
-        border: Border.all(color: fg.withOpacity(0.4)),
+        border: Border.all(color: fg.withValues(alpha: 0.4)),
       ),
       child: Row(
         mainAxisSize: MainAxisSize.min,
@@ -430,7 +430,7 @@ class _ActionCard extends StatelessWidget {
 }
 
 void _showExportDialog(BuildContext context, LegalDocument doc) {
-  showDialog(
+  showDialog<void>(
     context: context,
     builder: (dialogCtx) => AlertDialog(
       title: const Row(

@@ -33,7 +33,7 @@ class LocalStorageService {
       if (rawList == null) return [];
 
       return rawList.map((item) {
-        final Map<String, dynamic> map = jsonDecode(item);
+        final Map<String, dynamic> map = jsonDecode(item) as Map<String, dynamic>;
         return LegalDocument.fromJson(map);
       }).toList();
     } catch (_) {
@@ -74,7 +74,7 @@ class LocalStorageService {
       if (rawList == null) return null;
 
       return rawList.map((str) {
-        final Map<String, dynamic> map = jsonDecode(str);
+        final Map<String, dynamic> map = jsonDecode(str) as Map<String, dynamic>;
         return ChecklistItem.fromJson(map);
       }).toList();
     } catch (_) {

@@ -35,6 +35,7 @@ class _SettingsPageState extends ConsumerState<SettingsPage> {
     final key = _apiKeyController.text.trim();
     await ref.read(settingsNotifierProvider.notifier).setApiKey(key.isNotEmpty ? key : null);
     if (mounted) {
+      ScaffoldMessenger.of(context).hideCurrentSnackBar();
       ScaffoldMessenger.of(context).showSnackBar(
         const SnackBar(content: Text('AI Configuration updated successfully.')),
       );
@@ -95,7 +96,7 @@ class _SettingsPageState extends ConsumerState<SettingsPage> {
                         style: TextStyle(fontSize: 12),
                       ),
                       value: settings.isDemoMode,
-                      activeColor: AppColors.primary,
+                      activeThumbColor: AppColors.primary,
                       onChanged: (val) {
                         ref.read(settingsNotifierProvider.notifier).setDemoMode(val);
                       },
@@ -182,6 +183,7 @@ class _SettingsPageState extends ConsumerState<SettingsPage> {
                         await ref.read(settingsNotifierProvider.notifier).clearAllData();
                         ref.read(documentNotifierProvider.notifier).clearDocument();
                         if (context.mounted) {
+                          ScaffoldMessenger.of(context).hideCurrentSnackBar();
                           ScaffoldMessenger.of(context).showSnackBar(
                             const SnackBar(content: Text('All local data and storage purged successfully.')),
                           );

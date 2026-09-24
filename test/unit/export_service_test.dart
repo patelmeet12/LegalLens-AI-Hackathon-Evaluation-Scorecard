@@ -82,11 +82,11 @@ void main() {
       final map = decoded as Map<String, dynamic>;
       expect(map['fileName'], 'employment_test.txt');
       expect(map['documentType'], 'Employment Agreement');
-      expect(map['clauses'], isA<List>());
-      expect(map['obligations'], isA<List>());
-      expect(map['dates'], isA<List>());
-      expect(map['risks'], isA<List>());
-      expect(map['options'], isA<List>());
+      expect(map['clauses'], isA<List<dynamic>>());
+      expect(map['obligations'], isA<List<dynamic>>());
+      expect(map['dates'], isA<List<dynamic>>());
+      expect(map['risks'], isA<List<dynamic>>());
+      expect(map['options'], isA<List<dynamic>>());
 
       // Deserialization round-trip
       final revived = LegalDocument.fromJson(map);

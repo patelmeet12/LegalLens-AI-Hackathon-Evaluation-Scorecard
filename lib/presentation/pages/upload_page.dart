@@ -165,9 +165,9 @@ class _UploadPageState extends ConsumerState<UploadPage> {
                 Container(
                   padding: const EdgeInsets.all(14),
                   decoration: BoxDecoration(
-                    color: AppColors.priorityAttention.withOpacity(0.12),
+                    color: AppColors.priorityAttention.withValues(alpha: 0.12),
                     borderRadius: BorderRadius.circular(12),
-                    border: Border.all(color: AppColors.priorityAttention.withOpacity(0.3)),
+                    border: Border.all(color: AppColors.priorityAttention.withValues(alpha: 0.3)),
                   ),
                   child: Row(
                     children: [
@@ -249,7 +249,7 @@ class _UploadPageState extends ConsumerState<UploadPage> {
                               const SizedBox(height: 8),
                               DropdownButtonFormField<String>(
                                 isExpanded: true,
-                                value: _selectedCategory,
+                                initialValue: _selectedCategory,
                                 decoration: const InputDecoration(contentPadding: EdgeInsets.symmetric(horizontal: 14, vertical: 12)),
                                 items: AppConstants.documentCategories
                                     .map((cat) => DropdownMenuItem(value: cat, child: Text(cat, style: const TextStyle(fontSize: 13.5), overflow: TextOverflow.ellipsis)))
@@ -296,7 +296,7 @@ class _UploadPageState extends ConsumerState<UploadPage> {
                     color: isDark ? AppColors.darkSurface : AppColors.lightSurface,
                     borderRadius: BorderRadius.circular(16),
                     border: Border.all(
-                      color: AppColors.primary.withOpacity(0.4),
+                      color: AppColors.primary.withValues(alpha: 0.4),
                       style: BorderStyle.solid,
                       width: 1.5,
                     ),
@@ -309,7 +309,7 @@ class _UploadPageState extends ConsumerState<UploadPage> {
                         Container(
                           padding: const EdgeInsets.all(12),
                           decoration: BoxDecoration(
-                            color: AppColors.primary.withOpacity(0.12),
+                            color: AppColors.primary.withValues(alpha: 0.12),
                             shape: BoxShape.circle,
                           ),
                           child: const Icon(Icons.cloud_upload_outlined, size: 30, color: AppColors.primaryLight),

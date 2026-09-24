@@ -17,9 +17,6 @@ class DemoAIProvider implements AIProvider {
     required String documentType,
     required String fileName,
   }) async {
-    // Simulate brief processing for realistic UX feel
-    await Future.delayed(const Duration(milliseconds: 300));
-
     final normalized = text.toLowerCase();
 
     // 1. Detect Clauses across 15 categories
@@ -1010,9 +1007,6 @@ class DemoAIProvider implements AIProvider {
     required LegalDocument document,
     required List<QAMessage> previousHistory,
   }) async {
-    // Simulate natural AI reasoning latency
-    await Future.delayed(const Duration(milliseconds: 350));
-
     final q = question.toLowerCase();
     final docText = document.rawText.toLowerCase();
 
@@ -1215,8 +1209,6 @@ class DemoAIProvider implements AIProvider {
     required String textB,
     required String nameB,
   }) async {
-    await Future.delayed(const Duration(milliseconds: 400));
-
     final lowerA = textA.toLowerCase();
     final lowerB = textB.toLowerCase();
 

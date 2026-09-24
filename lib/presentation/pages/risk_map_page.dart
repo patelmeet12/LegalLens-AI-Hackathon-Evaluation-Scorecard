@@ -58,13 +58,13 @@ class RiskMapPage extends ConsumerWidget {
 
               // Attention Overview Banner
               GlassCard(
-                borderColor: highCount > 0 ? AppColors.priorityAttention.withOpacity(0.4) : null,
+                borderColor: highCount > 0 ? AppColors.priorityAttention.withValues(alpha: 0.4) : null,
                 child: Row(
                   children: [
                     Container(
                       padding: const EdgeInsets.all(12),
                       decoration: BoxDecoration(
-                        color: (highCount > 0 ? AppColors.priorityAttention : AppColors.priorityInfo).withOpacity(0.15),
+                        color: (highCount > 0 ? AppColors.priorityAttention : AppColors.priorityInfo).withValues(alpha: 0.15),
                         shape: BoxShape.circle,
                       ),
                       child: Icon(
@@ -148,10 +148,14 @@ class _RiskCard extends StatelessWidget {
           Row(
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: [
-              Text(
-                item.category.label,
-                style: const TextStyle(fontSize: 14.5, fontWeight: FontWeight.w700),
+              Expanded(
+                child: Text(
+                  item.category.label,
+                  style: const TextStyle(fontSize: 14.5, fontWeight: FontWeight.w700),
+                  overflow: TextOverflow.ellipsis,
+                ),
               ),
+              const SizedBox(width: 8),
               PriorityBadge(tier: item.attentionLevel, compact: true),
             ],
           ),

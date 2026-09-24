@@ -61,9 +61,9 @@ class LandingPage extends ConsumerWidget {
         Container(
           padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 6),
           decoration: BoxDecoration(
-            color: AppColors.primary.withOpacity(0.12),
+            color: AppColors.primary.withValues(alpha: 0.12),
             borderRadius: BorderRadius.circular(30),
-            border: Border.all(color: AppColors.primary.withOpacity(0.3)),
+            border: Border.all(color: AppColors.primary.withValues(alpha: 0.3)),
           ),
           child: Row(
             mainAxisSize: MainAxisSize.min,
@@ -268,7 +268,7 @@ class LandingPage extends ConsumerWidget {
                         style: TextStyle(
                           fontSize: 24,
                           fontWeight: FontWeight.w800,
-                          color: AppColors.primaryLight.withOpacity(0.8),
+                          color: AppColors.primaryLight.withValues(alpha: 0.8),
                         ),
                       ),
                       const SizedBox(height: 8),
@@ -298,12 +298,14 @@ class LandingPage extends ConsumerWidget {
 
   Widget _buildCapabilitiesGrid(BuildContext context, bool isDark) {
     final features = [
-      {'icon': Icons.lightbulb_outline_rounded, 'title': 'Plain-Language Translations', 'desc': 'Every clause is translated into direct English alongside "Why It Matters" and the original verbatim text.'},
-      {'icon': Icons.checklist_rtl_rounded, 'title': 'Tri-Partitioned Obligations', 'desc': 'Separates responsibilities into "Your Duties", "Other Party Duties", and "Shared Responsibilities".'},
-      {'icon': Icons.timeline_rounded, 'title': 'Milestone Timeline', 'desc': 'Extracts probation, notice, and expiration dates. Never invents dates ("Not detected" fallback).'},
-      {'icon': Icons.shield_outlined, 'title': '6-Category Risk Radar', 'desc': 'Evaluates Financial, Employment, Privacy, Liability, IP, and Restrictions using safe non-definitive phrasing.'},
-      {'icon': Icons.chat_bubble_outline_rounded, 'title': 'Document Grounded Q&A', 'desc': 'Answers strictly using provided text, cites section titles, and refuses unmentioned queries.'},
-      {'icon': Icons.compare_arrows_rounded, 'title': 'Side-by-Side Comparison', 'desc': 'Diff two contract versions to pinpoint altered compensation, expanded restrictions, or lost severance.'},
+      {'icon': Icons.auto_stories_rounded, 'title': 'Understand Legal Documents', 'desc': 'Executive Legal Snapshot with 3-tier complexity index (Simple / Moderate / Complex) and plain-English summaries.'},
+      {'icon': Icons.compare_arrows_rounded, 'title': 'Compare Documents Side-by-Side', 'desc': 'Diff two contract versions to pinpoint altered compensation, expanded covenants, or lost protections.'},
+      {'icon': Icons.rule_rounded, 'title': 'Identify Important Clauses', 'desc': 'Detects 15 distinct categories with verbatim text retention and "Why It Matters" context.'},
+      {'icon': Icons.checklist_rtl_rounded, 'title': 'Identify Obligations & Risks', 'desc': 'Tri-partitions responsibilities into Your, Other Party, and Shared + 6-Category Risk Radar.'},
+      {'icon': Icons.chat_bubble_outline_rounded, 'title': 'Ask Questions About Documents', 'desc': 'Grounded AI Q&A answering strictly from text with exact section citations and hallucination refusal.'},
+      {'icon': Icons.alt_route_rounded, 'title': 'Understand Options & Next Steps', 'desc': '4 strategic negotiation paths (As-Is, Balanced Redline, Carve-Outs, Counsel) with ready counter-proposals.'},
+      {'icon': Icons.fact_check_outlined, 'title': 'Actionable Signing Checklists', 'desc': 'Interactive "Before You Sign" verification checklist and 1-click Markdown / JSON complete export.'},
+      {'icon': Icons.support_agent_rounded, 'title': 'Prepare Questions for a Lawyer', 'desc': 'High-impact consultation questions generated from detected attention areas to maximize legal counsel.'},
     ];
 
     return Column(
@@ -337,7 +339,7 @@ class LandingPage extends ConsumerWidget {
                       Container(
                         padding: const EdgeInsets.all(8),
                         decoration: BoxDecoration(
-                          color: AppColors.primary.withOpacity(0.12),
+                          color: AppColors.primary.withValues(alpha: 0.12),
                           borderRadius: BorderRadius.circular(10),
                         ),
                         child: Icon(f['icon'] as IconData, color: AppColors.primaryLight, size: 20),
@@ -383,7 +385,7 @@ class LandingPage extends ConsumerWidget {
           Container(
             padding: const EdgeInsets.all(12),
             decoration: BoxDecoration(
-              color: AppColors.priorityInfo.withOpacity(0.15),
+              color: AppColors.priorityInfo.withValues(alpha: 0.15),
               borderRadius: BorderRadius.circular(12),
             ),
             child: const Icon(Icons.security_rounded, color: AppColors.priorityInfo, size: 26),
@@ -443,7 +445,7 @@ class _SampleContractButton extends StatelessWidget {
         decoration: BoxDecoration(
           color: isDark ? AppColors.darkSurface : AppColors.lightSurface,
           borderRadius: BorderRadius.circular(12),
-          border: Border.all(color: AppColors.primaryLight.withOpacity(0.3)),
+          border: Border.all(color: AppColors.primaryLight.withValues(alpha: 0.3)),
         ),
         child: Row(
           mainAxisSize: MainAxisSize.min,

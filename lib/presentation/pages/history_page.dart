@@ -62,7 +62,7 @@ class HistoryPage extends ConsumerWidget {
                   shrinkWrap: true,
                   physics: const NeverScrollableScrollPhysics(),
                   itemCount: history.length,
-                  separatorBuilder: (_, __) => const SizedBox(height: 14),
+                  separatorBuilder: (_, index) => const SizedBox(height: 14),
                   itemBuilder: (context, index) {
                     final doc = history[index];
                     return _HistoryDocCard(doc: doc, isDark: isDark);
@@ -79,7 +79,7 @@ class HistoryPage extends ConsumerWidget {
   }
 
   void _confirmClearAll(BuildContext context, WidgetRef ref) {
-    showDialog(
+    showDialog<void>(
       context: context,
       builder: (ctx) => AlertDialog(
         title: const Text('Clear All Document History?'),
@@ -118,7 +118,7 @@ class _HistoryDocCard extends ConsumerWidget {
           Container(
             padding: const EdgeInsets.all(12),
             decoration: BoxDecoration(
-              color: AppColors.primary.withOpacity(0.12),
+              color: AppColors.primary.withValues(alpha: 0.12),
               borderRadius: BorderRadius.circular(10),
             ),
             child: const Icon(Icons.description_outlined, color: AppColors.primaryLight, size: 24),

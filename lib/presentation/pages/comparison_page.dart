@@ -94,7 +94,7 @@ class _ComparisonPageState extends ConsumerState<ComparisonPage> {
                                   Container(
                                     padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
                                     decoration: BoxDecoration(
-                                      color: AppColors.primary.withOpacity(0.15),
+                                      color: AppColors.primary.withValues(alpha: 0.15),
                                       borderRadius: BorderRadius.circular(6),
                                     ),
                                     child: const Text('Doc A (Base)', style: TextStyle(fontSize: 11, fontWeight: FontWeight.w700, color: AppColors.primaryLight)),
@@ -135,7 +135,7 @@ class _ComparisonPageState extends ConsumerState<ComparisonPage> {
                                   Container(
                                     padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
                                     decoration: BoxDecoration(
-                                      color: AppColors.secondary.withOpacity(0.15),
+                                      color: AppColors.secondary.withValues(alpha: 0.15),
                                       borderRadius: BorderRadius.circular(6),
                                     ),
                                     child: const Text('Doc B (Revision)', style: TextStyle(fontSize: 11, fontWeight: FontWeight.w700, color: AppColors.secondary)),
@@ -192,9 +192,9 @@ class _ComparisonPageState extends ConsumerState<ComparisonPage> {
                   Container(
                     padding: const EdgeInsets.all(16),
                     decoration: BoxDecoration(
-                      color: AppColors.priorityAttention.withOpacity(0.12),
+                      color: AppColors.priorityAttention.withValues(alpha: 0.12),
                       borderRadius: BorderRadius.circular(14),
-                      border: Border.all(color: AppColors.priorityAttention.withOpacity(0.4)),
+                      border: Border.all(color: AppColors.priorityAttention.withValues(alpha: 0.4)),
                     ),
                     child: Column(
                       crossAxisAlignment: CrossAxisAlignment.start,
@@ -240,7 +240,7 @@ class _ComparisonPageState extends ConsumerState<ComparisonPage> {
                   shrinkWrap: true,
                   physics: const NeverScrollableScrollPhysics(),
                   itemCount: result.changedClauses.length,
-                  separatorBuilder: (_, __) => const SizedBox(height: 14),
+                  separatorBuilder: (_, index) => const SizedBox(height: 14),
                   itemBuilder: (context, index) {
                     final diff = result.changedClauses[index];
                     return _ChangedClauseCard(diff: diff, isDark: isDark);
@@ -376,9 +376,9 @@ class _ChangedClauseCard extends StatelessWidget {
                     child: Container(
                       padding: const EdgeInsets.all(10),
                       decoration: BoxDecoration(
-                        color: Colors.grey.withOpacity(0.08),
+                        color: Colors.grey.withValues(alpha: 0.08),
                         borderRadius: BorderRadius.circular(8),
-                        border: Border.all(color: Colors.grey.withOpacity(0.2)),
+                        border: Border.all(color: Colors.grey.withValues(alpha: 0.2)),
                       ),
                       child: Column(
                         crossAxisAlignment: CrossAxisAlignment.start,
@@ -395,9 +395,9 @@ class _ChangedClauseCard extends StatelessWidget {
                     child: Container(
                       padding: const EdgeInsets.all(10),
                       decoration: BoxDecoration(
-                        color: AppColors.primary.withOpacity(0.08),
+                        color: AppColors.primary.withValues(alpha: 0.08),
                         borderRadius: BorderRadius.circular(8),
-                        border: Border.all(color: AppColors.primaryLight.withOpacity(0.2)),
+                        border: Border.all(color: AppColors.primaryLight.withValues(alpha: 0.2)),
                       ),
                       child: Column(
                         crossAxisAlignment: CrossAxisAlignment.start,
