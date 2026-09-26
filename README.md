@@ -3,8 +3,8 @@
 **PromptWars Hackathon Challenge Submission: AI for Legal Assistance & Access**
 
 [![CI Pipeline](https://github.com/patelmeet12/LegalLens-AI-Hackathon-Evaluation-Scorecard/actions/workflows/ci.yml/badge.svg)](https://github.com/patelmeet12/LegalLens-AI-Hackathon-Evaluation-Scorecard/actions/workflows/ci.yml)
-[![Tests](https://img.shields.io/badge/Tests-42%20Passing-brightgreen.svg)](TESTING.md)
-[![Coverage](https://img.shields.io/badge/Coverage-100%25-brightgreen.svg)](TESTING.md)
+[![Tests](https://img.shields.io/badge/Tests-151%20Passing-brightgreen.svg)](TESTING.md)
+[![Coverage](https://img.shields.io/badge/Coverage-84.14%25-brightgreen.svg)](TESTING.md)
 [![Accessibility](https://img.shields.io/badge/WCAG%202.1-AA%20Compliant-blue.svg)](ACCESSIBILITY.md)
 [![Performance](https://img.shields.io/badge/Memoization-SHA--256%20O(1)-orange.svg)](PERFORMANCE.md)
 [![Security](https://img.shields.io/badge/Privacy-Zero--Backend%20Isolated-success.svg)](SECURITY.md)
@@ -66,17 +66,31 @@ LegalLens AI adheres strictly to **Clean Architecture** and **Domain-Driven Desi
                     │  ┌────────────────────┐ ┌──────────────────┐ │
                     │  │DocumentParserService│ │    AIService     │ │
                     │  └────────────────────┘ └────────┬─────────┘ │
+                    │                                  │           │
+                    │                           [AnalysisCache]    │
+                    │                      (SHA-256 Content Keyed) │
                     └──────────────────────────────────┼───────────┘
                                                        │
                            ┌───────────────────────────┴──────────────────────────┐
                            ▼                                                      ▼
              ┌───────────────────────────┐                          ┌───────────────────────────┐
              │      DemoAIProvider       │                          │      GeminiAIProvider     │
-             │ (Local Heuristic Engine)  │                          │  (Optional Google Gemini) │
-             │  • Zero API Key Required  │                          │  • Runtime Config Only    │
-             │  • 100% Client-Side NLP   │                          │  • Never Commit Secrets   │
-             │  • Deterministic Output   │                          │  • Grounded System Prompt │
-             └───────────────────────────┘                          └───────────────────────────┘
+             │   (Orchestration Layer)   │                          │  (Optional Google Gemini) │
+             │             │             │                          │  • Runtime Config Only    │
+             │  ┌──────────┴──────────┐  │                          │  • Never Commit Secrets   │
+             │  │ 10 Modular Engines  │  │                          │  • Grounded System Prompt │
+             │  │ • ClauseDetector    │  │                          └───────────────────────────┘
+             │  │ • ObligationExtract │  │
+             │  │ • DateExtractor     │  │
+             │  │ • RiskAnalyzer      │  │
+             │  │ • SnapshotGen       │  │
+             │  │ • LawyerQuestionGen │  │
+             │  │ • ChecklistGen      │  │
+             │  │ • OptionsGen        │  │
+             │  │ • DocTypeDetector   │  │
+             │  │ • TextMatcher       │  │
+             │  └─────────────────────┘  │
+             └───────────────────────────┘
 ```
 
 ### Document Intelligence Pipeline
@@ -85,13 +99,16 @@ LegalLens AI adheres strictly to **Clean Architecture** and **Domain-Driven Desi
 Legal Document (PDF/TXT/MD)
            │
            ▼
-[DocumentParserService] ───► Structure & Section Indexing
+[DocumentParserService] ───► Structure & Section Indexing (11 Edge Cases Tested)
            │
            ▼
-[AIService / AIProvider] ───► 15-Category Clause Extraction
-           │                 Obligation Tri-Partitioning
-           │                 Date & Milestone Parsing
-           │                 Risk & Attention Scoring
+[AnalysisCache] ───────────► Check SHA-256 Normalized Content Hash (O(1) Hit)
+           │ (miss)
+           ▼
+[AIService / AIProvider] ───► 15-Category Clause Extraction (ClauseRule Registry)
+           │                 Obligation Tri-Partitioning (Your / Other / Shared)
+           │                 Date & Milestone Parsing ("Not detected." safety)
+           │                 Risk & Attention Scoring (Non-definitive advisories)
            │
            ▼
 [Validation Layer] ────────► Sanitize defamatory words (never "illegal" / "unlawful")
@@ -159,36 +176,44 @@ LegalLens AI is built on a **zero-backend, local-first philosophy**:
 
 ## 🧪 Testing & Quality Assurance
 
-LegalLens AI includes a comprehensive, automated test suite:
+LegalLens AI includes a comprehensive, automated test suite across 22 test files (**151 tests, 100% passing, 0 failures**):
 
-* **Unit Tests (`test/unit/`):**
-  - `document_parser_test.dart`: Section header splitting, whitespace handling, preamble detection.
-  - `clause_and_intelligence_test.dart`:
-    - Detection of 15 clause categories (Payment, Termination, Notice, IP, Non-Compete, Indemnity, etc.).
-    - Obligation tri-partitioning (Your, Other, Shared).
-    - Date extraction and absent date safety (*"Not detected."*).
-    - Risk classification without defamatory terms.
-    - Grounded Q&A with section citations.
-    - Strict anti-hallucination refusal.
-    - Contract comparison diffing.
-    - Action checklist generation and lawyer questions.
+* **Unit Tests (`test/unit/` — 19 suites, 132 tests):**
+  - `cache_and_performance_test.dart` (12 tests): In-memory SHA-256 caching, key determinism, diagnostics, and 10KB–1MB document benchmarks.
+  - `document_parser_test.dart` (13 tests): All 11 parser edge cases (empty, whitespace, ARTICLE/SECTION, uppercase, malformed, 1MB, Unicode, blank lines).
+  - `clause_detection_test.dart` (9 tests): `ClauseRule` registry validation across positive, negative, and edge cases.
+  - `obligation_extraction_test.dart` (4 tests): Tri-partitioning covenants into Your, Other, and Shared.
+  - `date_extraction_test.dart` (3 tests): Critical date detection and `"Not detected."` anti-hallucination guarantee.
+  - `risk_analysis_test.dart` (6 tests): 6-category radar with neutral, document-grounded advisory language.
+  - `document_type_detection_test.dart` (6 tests): Employment, lease, NDA, vendor, contractor, and general classification.
+  - `checklist_generation_test.dart` (2 tests): Pre-signature verification items.
+  - `lawyer_questions_test.dart` (2 tests): Document-grounded questions for professional consultation.
+  - `options_generation_test.dart` (2 tests): 4 strategic decision paths with actionable next steps.
+  - `options_and_next_steps_test.dart` (7 tests): Strategic options, draft language, checklists.
+  - `security_sanitization_test.dart` (9 tests): Prompt injection, untrusted scripts/HTML, malicious patterns.
+  - `clause_and_intelligence_test.dart` (11 tests): Grounded Q&A citations, refusal of unmentioned topics, comparisons.
+  - `repositories_and_storage_test.dart` (11 tests): Document persistence, checklist cleanup, malformed JSON recovery.
+  - `export_service_test.dart` (4 tests): Markdown & JSON comprehensive export integrity.
+  - `gemini_provider_test.dart` (7 tests): Mock Gemini provider parsing and error handling.
+  - `enums_and_models_test.dart` (12 tests): JSON serialization and domain model fidelity.
+  - `theme_and_entities_test.dart` (4 tests): Material 3 color tokens, contrast, entities.
+  - `app_providers_state_test.dart` (8 tests): Riverpod state lifecycle and operations.
 
-* **Widget Tests (`test/widget/`):**
-  - `widget_flows_test.dart`:
-    - `LandingPage`: Brand headline, presets, responsive action buttons.
-    - `UploadPage`: Preset selection, category dropdown, paste interaction.
-    - `SnapshotPage`: Overview rendering, complexity badges, metric counters.
-    - `ClausesPage`: Priority chip filters, category selection, search filtering.
-    - `ActionCenterPage`: Interactive checklist toggles, lawyer questions.
-    - `QAPage`: Chat interface, suggested prompt pills, grounding notice.
+* **Widget Tests (`test/widget/` — 3 suites, 19 tests):**
+  - `widget_flows_test.dart` (7 tests): End-to-end user flows (upload, clauses, obligations, radar, Q&A, compare, checklist).
+  - `accessibility_semantics_test.dart` (6 tests): WCAG 2.1 AA semantics, triple-indicator pattern, screen reader landmarks.
+  - `pages_comprehensive_test.dart` (6 tests): UI rendering across Landing, Upload, Snapshot, Clauses, ActionCenter, Q&A.
 
-### Running Tests
+### Running Verification
 ```bash
-# Run all unit and widget tests
-flutter test
+# Static analysis with zero warnings/infos
+flutter analyze --fatal-infos
 
-# Run static analysis
-flutter analyze
+# Run all 151 tests with coverage
+flutter test --coverage
+
+# Production web build
+flutter build web --release --no-tree-shake-icons
 ```
 
 ---
@@ -245,10 +270,10 @@ For instant 1-click evaluation without searching for sample contracts:
 ## 📚 Deep Technical Documentation
 
 Comprehensive specifications and audit logs are available in the repository root:
-* [SCORECARD.md](SCORECARD.md) — Comprehensive Hackathon AI Evaluation Scorecard (98+/100 Target)
-* [TESTING.md](TESTING.md) — Multi-Tiered Automated Test Suite (42/42 Tests, Coverage Report)
+* [SCORECARD.md](SCORECARD.md) — Engineering Evidence & Hackathon Evaluation Verification
+* [TESTING.md](TESTING.md) — Multi-Tiered Automated Test Suite (151/151 Tests Passing, 84.14% Line Coverage)
 * [ACCESSIBILITY.md](ACCESSIBILITY.md) — WCAG 2.1 AA Compliance Audit & Multi-Factor Indicator Proof
-* [PERFORMANCE.md](PERFORMANCE.md) — Algorithmic Complexity, SHA-256 Memoization Cache & RepaintBoundaries
+* [PERFORMANCE.md](PERFORMANCE.md) — Algorithmic Complexity, SHA-256 Analysis Cache & Benchmarks
 * [ARCHITECTURE.md](ARCHITECTURE.md) — Clean Architecture, Domain-Driven Design & State Lifecycle
 * [SECURITY.md](SECURITY.md) — Zero-Backend Privacy Isolation, Prompt Injection Defenses & CSP
 

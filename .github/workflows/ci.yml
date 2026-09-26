@@ -40,6 +40,9 @@ jobs:
       - name: Run Automated Test Suite with Coverage
         run: flutter test --coverage
 
+      - name: Verify Coverage Artifact Exists
+        run: test -f coverage/lcov.info
+
       - name: Verify Web Production Compilation
         run: flutter build web --release --no-tree-shake-icons
 

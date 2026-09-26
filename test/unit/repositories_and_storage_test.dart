@@ -1,3 +1,4 @@
+import 'dart:convert';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:legallens_ai/data/repositories/repository_impls.dart';
@@ -75,6 +76,18 @@ void main() {
       expect(emptyHistory, isEmpty);
     });
 
+    test('Updating document: saving document with existing ID updates entry and preserves order', () async {
+      final doc1 = _createSampleDoc('doc_1', 'NDA_v1.txt');
+      await storage.saveDocument(doc1);
+
+      final updatedDoc1 = _createSampleDoc('doc_1', 'NDA_v1_Revised.txt');
+      await storage.saveDocument(updatedDoc1);
+
+      final history = await storage.getHistory();
+      expect(history.length, 1);
+      expect(history.first.fileName, 'NDA_v1_Revised.txt');
+    });
+
     test('Checklist persistence and retrieval', () async {
       const items = [
         ChecklistItem(id: 'k1', title: 'Review IP', category: 'IP'),
@@ -90,6 +103,74 @@ void main() {
 
       final missing = await storage.getChecklist('doc_absent');
       expect(missing, isNull);
+    });
+
+    test('Zero Orphaned Data: clearAllDocuments purges history and all associated checklist records', () async {
+      final doc1 = _createSampleDoc('doc_clean_1', 'Doc1.txt');
+      final doc2 = _createSampleDoc('doc_clean_2', 'Doc2.txt');
+
+      await storage.saveDocument(doc1);
+      await storage.saveDocument(doc2);
+
+      await storage.saveChecklist('doc_clean_1', [
+        const ChecklistItem(id: 'c1', title: 'Item 1', category: 'General'),
+      ]);
+      await storage.saveChecklist('doc_clean_2', [
+        const ChecklistItem(id: 'c2', title: 'Item 2', category: 'General'),
+      ]);
+
+      expect(await storage.getChecklist('doc_clean_1'), isNotNull);
+      expect(await storage.getChecklist('doc_clean_2'), isNotNull);
+
+      await storage.clearAllDocuments();
+
+      expect(await storage.getHistory(), isEmpty);
+      expect(await storage.getChecklist('doc_clean_1'), isNull);
+      expect(await storage.getChecklist('doc_clean_2'), isNull);
+
+      final prefs = await SharedPreferences.getInstance();
+      final keys = prefs.getKeys().where((k) => k.startsWith('legallens_checklist_'));
+      expect(keys, isEmpty, reason: 'All checklist keys must be purged with clearAllDocuments()');
+    });
+
+    test('deleteDocument removes associated checklist record to avoid orphaned records', () async {
+      final doc = _createSampleDoc('doc_del_1', 'DocDel.txt');
+      await storage.saveDocument(doc);
+      await storage.saveChecklist('doc_del_1', [
+        const ChecklistItem(id: 'c_del', title: 'Check item', category: 'Notice'),
+      ]);
+
+      expect(await storage.getChecklist('doc_del_1'), isNotNull);
+      await storage.deleteDocument('doc_del_1');
+
+      expect(await storage.getDocumentById('doc_del_1'), isNull);
+      expect(await storage.getChecklist('doc_del_1'), isNull);
+    });
+
+    test('Malformed stored JSON in document history is skipped gracefully without crashing', () async {
+      final prefs = await SharedPreferences.getInstance();
+      final validDoc = _createSampleDoc('valid_1', 'valid.txt');
+      final validDocJson = jsonEncode(validDoc.toJson());
+      const corruptedJson = '{invalid_json_missing_quotes: true, broken';
+
+      await prefs.setStringList('legallens_history_docs', [validDocJson, corruptedJson]);
+
+      final history = await storage.getHistory();
+      expect(history.length, 1);
+      expect(history.first.id, 'valid_1');
+    });
+
+    test('Malformed stored JSON in checklist is skipped gracefully', () async {
+      final prefs = await SharedPreferences.getInstance();
+      const validItemJson = '{"id":"chk_v","title":"Valid task","category":"Legal","isChecked":false}';
+      const corruptItemJson = 'NOT_JSON';
+
+      await prefs.setStringList('legallens_checklist_doc_test', [validItemJson, corruptItemJson]);
+
+      final checklist = await storage.getChecklist('doc_test');
+      expect(checklist, isNotNull);
+      expect(checklist!.length, 1);
+      expect(checklist.first.id, 'chk_v');
     });
 
     test('Settings persistence (Demo mode, API Key, Dark mode, clearAllData)', () async {

@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:shared_preferences/shared_preferences.dart';
+import 'package:legallens_ai/core/constants/app_constants.dart';
 import 'package:legallens_ai/domain/entities/enums.dart';
 import 'package:legallens_ai/domain/entities/legal_entities.dart';
 import 'package:legallens_ai/presentation/pages/landing_page.dart';
@@ -252,7 +253,7 @@ void main() {
     expect(find.textContaining('Is the 12-month non-compete enforceable'), findsOneWidget);
   });
 
-  testWidgets('QAPage renders chat interface with grounding notice and quick questions', (WidgetTester tester) async {
+  testWidgets('FLOW 6: Open Q&A -> ask grounded question -> receive answer -> verify citation', (WidgetTester tester) async {
     tester.view.physicalSize = const Size(1200, 900);
     tester.view.devicePixelRatio = 1.0;
     addTearDown(tester.view.resetPhysicalSize);
@@ -270,11 +271,48 @@ void main() {
         ),
       ),
     );
-
     await tester.pumpAndSettle();
 
-    expect(find.text('Document Grounded AI Q&A'), findsOneWidget);
-    expect(find.text('What happens if I resign?'), findsOneWidget);
-    expect(find.text('Who owns the work I create?'), findsOneWidget);
+    // Tap quick suggested question
+    await tester.tap(find.text('What happens if I resign?'));
+    await tester.pumpAndSettle();
+
+    // Verify response message and citation appear in chat
+    expect(find.textContaining('written notice'), findsWidgets);
+    expect(find.textContaining('Section 3: Term and Termination'), findsWidgets);
+  });
+
+  testWidgets('FLOW 7: Ask hallucination / ungrounded question -> verify refusal message', (WidgetTester tester) async {
+    tester.view.physicalSize = const Size(1200, 900);
+    tester.view.devicePixelRatio = 1.0;
+    addTearDown(tester.view.resetPhysicalSize);
+
+    final container = ProviderContainer();
+    final mockDoc = _createMockDocument();
+    container.read(documentNotifierProvider.notifier).setDocument(mockDoc);
+    container.read(qaNotifierProvider.notifier).initForDocument(mockDoc);
+
+    await tester.pumpWidget(
+      UncontrolledProviderScope(
+        container: container,
+        child: const MaterialApp(
+          home: Scaffold(body: QAPage()),
+        ),
+      ),
+    );
+    await tester.pumpAndSettle();
+
+    // Enter ungrounded question in input field
+    await tester.enterText(find.byType(TextField), 'What is the weather tomorrow?');
+    await tester.pumpAndSettle();
+
+    // Tap send button
+    final sendBtn = find.byIcon(Icons.send_rounded);
+    await tester.ensureVisible(sendBtn);
+    await tester.tap(sendBtn);
+    await tester.pumpAndSettle();
+
+    // Verify anti-hallucination refusal message appears
+    expect(find.text(AppConstants.noHallucinationRefusal), findsOneWidget);
   });
 }

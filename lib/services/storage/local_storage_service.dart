@@ -2,6 +2,15 @@ import 'dart:convert';
 import 'package:shared_preferences/shared_preferences.dart';
 import '../../domain/entities/legal_entities.dart';
 
+/// Local persistence service for document history, user checklists, and preferences.
+///
+/// SECURITY & PLATFORM BOUNDARY NOTICE:
+/// On Flutter Web, SharedPreferences persists via browser `window.localStorage`.
+/// While this ensures 100% offline client-side privacy with zero external transmission,
+/// web localStorage is unencrypted and does NOT provide hardware-backed secure storage
+/// (such as Apple Keychain, Android Keystore, or Linux Secret Service).
+/// In high-security or multi-tenant desktop environments, sensitive credentials (like Gemini API keys)
+/// should interface with a dedicated platform-native secure enclave implementation.
 class LocalStorageService {
   static const String _keyHistory = 'legallens_history_docs';
   static const String _keyDemoMode = 'legallens_setting_demo_mode';
@@ -32,10 +41,16 @@ class LocalStorageService {
       final rawList = prefs.getStringList(_keyHistory);
       if (rawList == null) return [];
 
-      return rawList.map((item) {
-        final Map<String, dynamic> map = jsonDecode(item) as Map<String, dynamic>;
-        return LegalDocument.fromJson(map);
-      }).toList();
+      final List<LegalDocument> docs = [];
+      for (final item in rawList) {
+        try {
+          final Map<String, dynamic> map = jsonDecode(item) as Map<String, dynamic>;
+          docs.add(LegalDocument.fromJson(map));
+        } catch (_) {
+          // Gracefully skip corrupted individual document entries
+        }
+      }
+      return docs;
     } catch (_) {
       return [];
     }
@@ -57,12 +72,27 @@ class LocalStorageService {
     final jsonList = history.map((d) => jsonEncode(d.toJson())).toList();
     await prefs.setStringList(_keyHistory, jsonList);
 
-    // Remove associated checklist
+    // Remove associated checklist to prevent orphaned records
     await prefs.remove('$_keyChecklistPrefix$id');
   }
 
+  /// Clears all document history AND purges all associated checklist records,
+  /// guaranteeing zero orphaned local records in storage.
   Future<void> clearAllDocuments() async {
     final prefs = await _prefs;
+    final history = await getHistory();
+    for (final doc in history) {
+      await prefs.remove('$_keyChecklistPrefix${doc.id}');
+    }
+
+    // Purge any lingering checklist keys by prefix
+    final keys = prefs.getKeys();
+    for (final key in keys) {
+      if (key.startsWith(_keyChecklistPrefix)) {
+        await prefs.remove(key);
+      }
+    }
+
     await prefs.remove(_keyHistory);
   }
 
@@ -73,10 +103,16 @@ class LocalStorageService {
       final rawList = prefs.getStringList('$_keyChecklistPrefix$docId');
       if (rawList == null) return null;
 
-      return rawList.map((str) {
-        final Map<String, dynamic> map = jsonDecode(str) as Map<String, dynamic>;
-        return ChecklistItem.fromJson(map);
-      }).toList();
+      final List<ChecklistItem> items = [];
+      for (final str in rawList) {
+        try {
+          final Map<String, dynamic> map = jsonDecode(str) as Map<String, dynamic>;
+          items.add(ChecklistItem.fromJson(map));
+        } catch (_) {
+          // Gracefully skip corrupted individual checklist entries
+        }
+      }
+      return items;
     } catch (_) {
       return null;
     }
